@@ -6,7 +6,8 @@ import logging
 import os
 from datetime import datetime
 
-from src.scraper import Partner, partners_to_dicts
+from src.models import Partner
+from src.scraper import partners_to_dicts
 
 logger = logging.getLogger(__name__)
 

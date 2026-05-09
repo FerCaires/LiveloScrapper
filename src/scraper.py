@@ -2,12 +2,13 @@
 
 import json
 import logging
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from datetime import datetime
-from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup
+
+from src.models import ParityInfo, Partner
 
 logger = logging.getLogger(__name__)
 
@@ -20,31 +21,6 @@ HEADERS = {
     ),
     "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
 }
-
-
-@dataclass
-class ParityInfo:
-    currency: str
-    currency_value: int
-    points: int
-    points_club: int
-    points_base: int
-    is_promotion: bool
-    promotion_start: Optional[str] = None
-    promotion_end: Optional[str] = None
-    campaign_type: str = "BAU"
-    legal_terms: str = ""
-
-
-@dataclass
-class Partner:
-    id: str
-    name: str
-    image_url: str
-    link: str
-    categories: str
-    parity: ParityInfo
-    extracted_at: str = ""
 
 
 def fetch_page(url: str = LIVELO_URL) -> str:
