@@ -1,0 +1,35 @@
+name: Livelo Daily Scraper
+
+on:
+  schedule:
+    # Executa às 13:00 UTC (10:00 horário de Brasília / BRT UTC-3)
+    - cron: "0 13 * * *"
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          TZ: America/Sao_Paulo
+        run: python main.py
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: livelo-data-${{ github.run_id }}
+          path: data/
+          retention-days: 90
