@@ -8,6 +8,7 @@ Extração automática diária dos parceiros e pontuações do programa de ponto
 - Captura **pontuação por real/dólar**, incluindo promoções ativas
 - Salva os resultados em **JSON** e **CSV** com data da extração
 - **Agendamento diário** às 10:00 (horário de Brasília)
+- **Docker** com timezone configurado para execução contínua
 - **GitHub Actions** para execução automática sem servidor
 
 ## Dados extraídos por parceiro
@@ -26,9 +27,39 @@ Extração automática diária dos parceiros e pontuações do programa de ponto
 
 ## Requisitos
 
-- Python 3.10+
+- **Docker** (recomendado) ou Python 3.10+
 
-## Instalação
+## Uso com Docker (recomendado)
+
+### Iniciar o container (execução diária às 10:00 BRT)
+
+```bash
+docker compose up -d
+```
+
+O container roda continuamente com timezone `America/Sao_Paulo` e executa a extração todos os dias às 10:00. Os resultados são salvos na pasta `data/` via volume montado.
+
+### Executar uma extração manualmente no container
+
+```bash
+docker compose run --rm scraper python main.py
+```
+
+### Ver logs
+
+```bash
+docker compose logs -f scraper
+```
+
+### Parar
+
+```bash
+docker compose down
+```
+
+## Uso sem Docker
+
+### Instalação
 
 ```bash
 git clone https://github.com/FerCaires/LiveloScrapper.git
@@ -36,23 +67,17 @@ cd LiveloScrapper
 pip install -r requirements.txt
 ```
 
-## Uso
-
 ### Execução única
 
 ```bash
 python main.py
 ```
 
-Os resultados serão salvos na pasta `data/` em JSON e CSV.
-
 ### Agendamento diário (10:00 horário de Brasília)
 
 ```bash
 python main.py --schedule
 ```
-
-O processo ficará ativo e executará a extração diariamente às 10:00.
 
 ### GitHub Actions (automático)
 
@@ -65,8 +90,14 @@ Para executar manualmente: vá em **Actions** > **Livelo Daily Scraper** > **Run
 ```
 LiveloScrapper/
 ├── main.py                          # Ponto de entrada
+├── Dockerfile                       # Imagem Docker
+├── docker-compose.yml               # Orquestração do container
 ├── src/
 │   ├── __init__.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── parity.py                # Dataclass ParityInfo
+│   │   └── partner.py               # Dataclass Partner
 │   ├── scraper.py                   # Lógica de extração
 │   ├── storage.py                   # Salvamento em JSON/CSV
 │   └── scheduler.py                 # Agendamento diário
