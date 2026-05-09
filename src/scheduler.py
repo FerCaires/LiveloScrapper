@@ -11,7 +11,7 @@ from src.storage import save_csv, save_json
 
 logger = logging.getLogger(__name__)
 
-EXECUTION_TIME = "10:00"
+EXECUTION_TIME = "19:25"
 
 
 def job() -> None:

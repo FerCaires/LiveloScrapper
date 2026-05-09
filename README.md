@@ -59,11 +59,19 @@ docker compose down
 
 ## Uso sem Docker
 
+### Criação de ambiente virtual
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
 ### Instalação
 
 ```bash
 git clone https://github.com/FerCaires/LiveloScrapper.git
 cd LiveloScrapper
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
