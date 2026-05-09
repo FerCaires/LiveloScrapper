@@ -6,6 +6,7 @@ from datetime import datetime
 
 import schedule
 
+from src.notifier import send_telegram_notification
 from src.scraper import scrape_partners
 from src.storage import save_csv, save_json
 
@@ -24,6 +25,8 @@ def job() -> None:
         partners = scrape_partners()
         json_path = save_json(partners)
         csv_path = save_csv(partners)
+
+        send_telegram_notification(partners)
 
         promos = [p for p in partners if p.parity.is_promotion]
         logger.info(
