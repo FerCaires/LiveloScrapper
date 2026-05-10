@@ -10,6 +10,11 @@ import logging
 import os
 import sys
 
+from dotenv import load_dotenv
+
+# Carrega variáveis de ambiente do arquivo .env
+load_dotenv()
+
 # Adiciona o diretório raiz ao path para imports
 sys.path.insert(0, os.path.dirname(__file__))
 
