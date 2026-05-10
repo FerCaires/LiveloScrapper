@@ -6,6 +6,7 @@ from datetime import datetime
 
 import schedule
 
+from src.filters import filter_partners_by_category
 from src.notifier import send_telegram_notification
 from src.scraper import scrape_partners
 from src.storage import save_csv, save_json
@@ -26,39 +27,43 @@ def job() -> None:
         json_path = save_json(partners)
         csv_path = save_csv(partners)
 
-        send_telegram_notification(partners)
+        filtered = filter_partners_by_category(partners)
 
-        promos = [p for p in partners if p.parity.is_promotion]
+        send_telegram_notification(filtered)
+
+        promos = [p for p in filtered if p.parity.is_promotion]
         logger.info(
-            "Resumo: %d parceiros | %d em promoção",
+            "Resumo: %d parceiros extraídos | %d filtrados | %d em promoção",
             len(partners),
+            len(filtered),
             len(promos),
         )
         logger.info("Arquivos salvos: %s, %s", json_path, csv_path)
 
-        _print_summary(partners)
+        _print_summary(filtered)
     except Exception:
         logger.exception("Erro durante a extração")
 
 
 def _print_summary(partners: list) -> None:
-    """Imprime um resumo dos parceiros no console."""
+    """Imprime um resumo dos parceiros filtrados no console."""
     promos = [p for p in partners if p.parity.is_promotion]
 
     print("\n" + "=" * 60)
     print(f"  LIVELO - Extração de {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-    print(f"  Total de parceiros: {len(partners)}")
-    print(f"  Parceiros em promoção: {len(promos)}")
+    print(f"  Parceiros filtrados: {len(partners)}")
+    print(f"  Em promoção: {len(promos)}")
     print("=" * 60)
 
-    if promos:
-        print("\n  Destaques - Promoções ativas:")
+    if partners:
+        print("\n  Ranking por pontuação (categorias filtradas):")
         print("  " + "-" * 56)
-        for p in sorted(promos, key=lambda x: x.parity.points, reverse=True):
+        for p in sorted(partners, key=lambda x: x.parity.points, reverse=True):
+            promo_tag = " ⭐" if p.parity.is_promotion else ""
             print(
                 f"  {p.name:<30} {p.parity.points} pts/"
                 f"{p.parity.currency}{p.parity.currency_value} "
-                f"(base: {p.parity.points_base})"
+                f"(base: {p.parity.points_base}){promo_tag}"
             )
         print("  " + "-" * 56)
     print()
