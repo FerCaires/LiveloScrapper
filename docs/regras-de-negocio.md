@@ -1,59 +1,39 @@
-# Regras de Negócio - LiveloScrapper
+# Regras de Negócio — LiveloScrapper
 
-> Este documento é a base de conhecimento consolidada das regras de negócio do projeto LiveloScrapper.
-> **IMPORTANTE:** Este documento deve ser atualizado a cada nova feature para manter-se sempre na versão mais recente.
-
----
-
-## 1. Domínio do Negócio
-
-O LiveloScrapper é um sistema ETL automatizado para extração diária das paridades de acúmulo de pontos do programa de fidelidade **Livelo**.
-
-## 2. Conceitos e Terminologias
+## 1. Conceitos
 
 | Termo | Definição |
-|-------|----------|
-| **Paridade de Acúmulo** | Razão de pontos ganhos por unidade de moeda gasta |
-| **Partner (Parceiro)** | Comerciante terceiro integrado à Livelo (ex: Amazon, Mercado Livre) |
-| **Points Base** | Taxa padrão de acúmulo (sem promoção) |
-| **Points Club** | Taxa preferencial para assinantes do Clube Livelo |
-| **BAU (Business As Usual)** | Estado operacional padrão sem promoções ativas |
-| **Is Promotion** | Flag booleana que indica se a paridade excede a taxa base |
-| **Campaign Type** | Tipo da campanha (ex: PROMOTION) |
-| **__NEXT_DATA__** | Blob JSON embutido no HTML usado para extração de dados |
-| **cb_partner_list** | Componente Next.js que contém metadados dos parceiros |
+|-------|-----------|
+| **Parceiro** | Loja/empresa integrada ao programa Livelo (ex: Amazon, Netshoes) |
+| **Paridade de Acúmulo** | Razão de pontos acumulados por unidade monetária gasta |
+| **Points Base (BAU)** | Pontuação padrão, sem promoção ativa |
+| **Points Club** | Pontuação preferencial para membros do Clube Livelo |
+| **Promoção** | Período em que a paridade é superior à base |
+| **Categoria** | Classificação do parceiro (ex: perfumariaecosmeticos, modaebeleza). Um parceiro pode ter múltiplas categorias separadas por espaço |
 
-## 3. Regras de Extração
+## 2. Regras Gerais
 
-- A extração deve ocorrer diariamente às **10:00 horário de Brasília** (America/Sao_Paulo)
-- Os dados são extraídos do componente `__NEXT_DATA__` da página da Livelo
-- Cada parceiro deve ter os seguintes dados coletados:
-  - ID, Nome, Categorias
-  - Moeda (R$ ou U$)
-  - Pontos atuais, pontos Clube, pontos base
-  - Status de promoção e período
+- A extração diária captura **todos** os parceiros da Livelo, sem exceção
+- Os dados completos são sempre persistidos em JSON e CSV (sem filtro)
+- O campo `categories` é uma string com categorias separadas por espaço
 
-## 4. Regras de Armazenamento
+## 3. Filtro de Categorias (Notificação e Summary)
 
-- Resultados salvos em formato **JSON** e **CSV** com timestamp da extração
-- Arquivos armazenados na pasta `/data` do projeto
-- Nome dos arquivos deve incluir a data da extração
+- **Onde se aplica:** Notificação Telegram e summary no console
+- **Categorias filtradas:** `perfumariaecosmeticos`, `modaebeleza`, `modaeacessorios`, `calcados`
+- Um parceiro é incluído se **qualquer uma** de suas categorias estiver na lista filtrada
+- A comparação de categorias é **case-insensitive**
+- Após o filtro, a ordenação é **decrescente por pontuação** (`parity.points`)
+- O filtro **NÃO** afeta o salvamento de dados (JSON/CSV mantêm todos os parceiros)
 
-## 5. Regras de Promoção
+## 4. Notificação Telegram
 
-- Um parceiro está em promoção quando `is_promotion = true`
-- Promoção é identificada quando a paridade atual excede a `points_base`
-- Promoções possuem data de início (`promotion_start`) e fim (`promotion_end`)
+- Envia ranking dos top parceiros filtrados, ordenados por pontuação decrescente
+- Mensagem limitada a 4096 caracteres (limite da API Telegram)
+- Retry com exponential backoff (até 3 tentativas)
+- Se variáveis `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` não estiverem configuradas, a notificação é ignorada silenciosamente
 
-## 6. Notificações
+## 5. Agendamento
 
-- O sistema envia notificação via **Telegram** após cada execução do scraping
-- A notificação deve informar o status da extração (sucesso/falha)
-
----
-
-## Histórico de Atualizações
-
-| Data | Feature | Alteração |
-|------|---------|----------|
-| 2026-05-10 | Documento inicial | Criação da base de conhecimento com regras existentes |
+- Execução diária configurável (atualmente às 10:00 BRT)
+- Timezone: America/Sao_Paulo

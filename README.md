@@ -75,6 +75,21 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### Configuração do Telegram (opcional)
+
+Para receber notificações via Telegram após cada extração:
+
+1. Crie um bot no [@BotFather](https://t.me/botfather) e obtenha o token
+2. Inicie uma conversa com seu bot e envie uma mensagem
+3. Obtenha o chat ID fazendo uma requisição GET para:  
+   `https://api.telegram.org/bot<SEU_TOKEN>/getUpdates`
+4. Copie o arquivo `.env.example` para `.env` e preencha as variáveis:
+
+```bash
+cp .env.example .env
+# Edite o .env com seu token e chat ID
+```
+
 ### Execução única
 
 ```bash
