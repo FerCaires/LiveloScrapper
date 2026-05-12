@@ -42,7 +42,7 @@ def send_telegram_notification(partners: list[Partner]) -> None:
 
 def _build_message(partners: list[Partner]) -> str:
     """Formata a mensagem com os top parceiros ordenados por pontuação."""
-    sorted_partners = sorted(partners, key=lambda p: p.parity.points, reverse=True)
+    sorted_partners = sorted(partners, key=lambda p: p.parity.best_points, reverse=True)
     top = sorted_partners[:TOP_PARTNERS_COUNT]
 
     header = (
@@ -53,9 +53,11 @@ def _build_message(partners: list[Partner]) -> str:
 
     lines: list[str] = []
     for i, partner in enumerate(top, start=1):
+        club_tag = " 🏆 (Clube)" if partner.parity.is_club_best else ""
         line = (
-            f"{i}. {partner.name} - {partner.parity.points} pts/"
+            f"{i}. {partner.name} - {partner.parity.best_points} pts/"
             f"{partner.parity.currency}{partner.parity.currency_value}"
+            f"{club_tag}"
         )
         lines.append(line)
 
