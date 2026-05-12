@@ -52,6 +52,8 @@ LiveloScrapper/
 ### 3.2 Modelos de Dados
 - Uso de `dataclass` do Python para modelos (Partner, ParityInfo)
 - Sem ORM — persistência direta em arquivos
+- **Computed properties** em dataclasses para lógica derivada (ex: `best_points`, `is_club_best` em `ParityInfo`)
+- Properties não afetam `dataclasses.asdict()` — serialização permanece apenas com fields
 
 ### 3.3 Configuração
 - Variáveis de ambiente via `.env` (dotenv)
@@ -84,3 +86,18 @@ main.py → job() ou start_scheduler()
 - Timezone definida via `TZ=America/Sao_Paulo`
 - Volume `./data:/app/data` para persistência
 - Rede isolada `livelo-network`
+
+## 7. Decisões Arquiteturais
+
+| Data | Feature | Decisão | Justificativa |
+|------|---------|---------|---------------|
+| 2026-05-10 | filtro-categorias | Módulo `filters.py` separado com funções puras | Separação de responsabilidades; sem I/O ou side effects |
+| 2026-05-12 | clube-category | `@property` no `ParityInfo` para `best_points` e `is_club_best` | Centraliza lógica no objeto; idiomático em Python; não altera serialização |
+| 2026-05-12 | clube-category | Tags ⭐ e 🏆 independentes (podem coexistir) | Representam informações ortogonais: promoção ativa vs. origem da melhor pontuação |
+
+## 8. Histórico de Atualizações
+
+| Data | Feature | Descrição |
+|------|---------|----------|
+| 2026-05-10 | filtro-categorias | Adição de filtro por categorias na notificação e summary |
+| 2026-05-12 | clube-category | Spec técnica: uso de `@property` para `best_points`/`is_club_best`, indicador visual 🏆 para Clube Livelo |

@@ -58,12 +58,13 @@ def _print_summary(partners: list) -> None:
     if partners:
         print("\n  Ranking por pontuação (categorias filtradas):")
         print("  " + "-" * 56)
-        for p in sorted(partners, key=lambda x: x.parity.points, reverse=True):
+        for p in sorted(partners, key=lambda x: x.parity.best_points, reverse=True):
             promo_tag = " ⭐" if p.parity.is_promotion else ""
+            club_tag = " 🏆" if p.parity.is_club_best else ""
             print(
-                f"  {p.name:<30} {p.parity.points} pts/"
+                f"  {p.name:<30} {p.parity.best_points} pts/"
                 f"{p.parity.currency}{p.parity.currency_value} "
-                f"(base: {p.parity.points_base}){promo_tag}"
+                f"(base: {p.parity.points_base}){promo_tag}{club_tag}"
             )
         print("  " + "-" * 56)
     print()

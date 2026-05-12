@@ -30,7 +30,7 @@ def filter_partners_by_category(
 
     Returns:
         Lista de parceiros que possuem pelo menos uma categoria correspondente,
-        ordenada por ``parity.points`` em ordem decrescente.
+        ordenada por melhor pontuação (``parity.best_points``) em ordem decrescente.
     """
     target = {c.lower() for c in (categories or FILTERED_CATEGORIES)}
 
@@ -40,7 +40,7 @@ def filter_partners_by_category(
         if {c.lower() for c in p.categories.split()}.intersection(target)
     ]
 
-    filtered.sort(key=lambda p: p.parity.points, reverse=True)
+    filtered.sort(key=lambda p: p.parity.best_points, reverse=True)
 
     logger.info(
         "Filtro de categorias aplicado: %d de %d parceiros selecionados",
