@@ -59,7 +59,7 @@ def extract_partners(data: dict) -> list[Partner]:
     partners = []
 
     for raw in raw_partners:
-        parity_data = raw.get("parity", {})
+        parity_data = raw.get("parity") or {}
         parity = ParityInfo(
             currency=parity_data.get("currency", "R$"),
             currency_value=parity_data.get("currencyValue", 1),
